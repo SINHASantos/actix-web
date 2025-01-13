@@ -66,17 +66,14 @@ use std::{
 
 use actix::{
     dev::{
-        AsyncContextParts, ContextFut, ContextParts, Envelope, Mailbox, StreamHandler,
-        ToEnvelope,
+        AsyncContextParts, ContextFut, ContextParts, Envelope, Mailbox, StreamHandler, ToEnvelope,
     },
     fut::ActorFuture,
     Actor, ActorContext, ActorState, Addr, AsyncContext, Handler, Message as ActixMessage,
     SpawnHandle,
 };
 use actix_http::ws::{hash_key, Codec};
-pub use actix_http::ws::{
-    CloseCode, CloseReason, Frame, HandshakeError, Message, ProtocolError,
-};
+pub use actix_http::ws::{CloseCode, CloseReason, Frame, HandshakeError, Message, ProtocolError};
 use actix_web::{
     error::{Error, PayloadError},
     http::{
@@ -426,16 +423,16 @@ pub fn handshake_with_protocols(
     };
 
     // check requested protocols
-    let protocol =
-        req.headers()
-            .get(&header::SEC_WEBSOCKET_PROTOCOL)
-            .and_then(|req_protocols| {
-                let req_protocols = req_protocols.to_str().ok()?;
-                req_protocols
-                    .split(',')
-                    .map(|req_p| req_p.trim())
-                    .find(|req_p| protocols.iter().any(|p| p == req_p))
-            });
+    let protocol = req
+        .headers()
+        .get(&header::SEC_WEBSOCKET_PROTOCOL)
+        .and_then(|req_protocols| {
+            let req_protocols = req_protocols.to_str().ok()?;
+            req_protocols
+                .split(',')
+                .map(|req_p| req_p.trim())
+                .find(|req_p| protocols.iter().any(|p| p == req_p))
+        });
 
     let mut response = HttpResponse::build(StatusCode::SWITCHING_PROTOCOLS)
         .upgrade("websocket")
@@ -713,7 +710,7 @@ where
         }
 
         if !this.buf.is_empty() {
-            Poll::Ready(Some(Ok(this.buf.split().freeze())))
+            Poll::Ready(Some(Ok(std::mem::take(&mut this.buf).freeze())))
         } else if this.fut.alive() && !this.closed {
             Poll::Pending
         } else {
@@ -778,10 +775,10 @@ where
                         break;
                     }
                     Poll::Pending => break,
-                    Poll::Ready(Some(Err(e))) => {
+                    Poll::Ready(Some(Err(err))) => {
                         return Poll::Ready(Some(Err(ProtocolError::Io(io::Error::new(
                             io::ErrorKind::Other,
-                            format!("{}", e),
+                            format!("{err}"),
                         )))));
                     }
                 }
@@ -799,11 +796,8 @@ where
             Some(frm) => {
                 let msg = match frm {
                     Frame::Text(data) => {
-                        Message::Text(ByteString::try_from(data).map_err(|e| {
-                            ProtocolError::Io(io::Error::new(
-                                io::ErrorKind::Other,
-                                format!("{}", e),
-                            ))
+                        Message::Text(ByteString::try_from(data).map_err(|err| {
+                            ProtocolError::Io(io::Error::new(io::ErrorKind::Other, err))
                         })?)
                     }
                     Frame::Binary(data) => Message::Binary(data),
@@ -820,10 +814,7 @@ where
 
 #[cfg(test)]
 mod tests {
-    use actix_web::{
-        http::{header, Method},
-        test::TestRequest,
-    };
+    use actix_web::test::TestRequest;
 
     use super::*;
 

@@ -10,8 +10,7 @@ use std::{
 use http::{header, Method, Uri, Version};
 
 use crate::{
-    header::HeaderMap, BoxedPayloadStream, Extensions, HttpMessage, Message, Payload,
-    RequestHead,
+    header::HeaderMap, BoxedPayloadStream, Extensions, HttpMessage, Message, Payload, RequestHead,
 };
 
 /// An HTTP request.
@@ -174,7 +173,7 @@ impl<P> Request<P> {
     /// Peer address is the directly connected peer's socket address. If a proxy is used in front of
     /// the Actix Web server, then it would be address of this proxy.
     ///
-    /// Will only return None when called in unit tests.
+    /// Will only return None when called in unit tests unless set manually.
     #[inline]
     pub fn peer_addr(&self) -> Option<net::SocketAddr> {
         self.head().peer_addr

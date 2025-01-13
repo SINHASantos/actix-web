@@ -4,7 +4,7 @@ use std::sync::Arc;
 
 use actix_router::PathDeserializer;
 use actix_utils::future::{ready, Ready};
-use derive_more::{AsRef, Deref, DerefMut, Display, From};
+use derive_more::derive::{AsRef, Deref, DerefMut, Display, From};
 use serde::de;
 
 use crate::{
@@ -89,8 +89,8 @@ where
                     );
 
                     if let Some(error_handler) = error_handler {
-                        let e = PathError::Deserialize(err);
-                        (error_handler)(e, req)
+                        let err = PathError::Deserialize(err);
+                        (error_handler)(err, req)
                     } else {
                         ErrorNotFound(err)
                     }
@@ -152,15 +152,14 @@ impl PathConfig {
 #[cfg(test)]
 mod tests {
     use actix_router::ResourceDef;
-    use derive_more::Display;
+    use derive_more::derive::Display;
     use serde::Deserialize;
 
     use super::*;
-    use crate::test::TestRequest;
-    use crate::{error, http, HttpResponse};
+    use crate::{error, http, test::TestRequest, HttpResponse};
 
     #[derive(Deserialize, Debug, Display)]
-    #[display(fmt = "MyStruct({}, {})", key, value)]
+    #[display("MyStruct({}, {})", key, value)]
     struct MyStruct {
         key: String,
         value: String,
@@ -276,8 +275,7 @@ mod tests {
     async fn test_custom_err_handler() {
         let (req, mut pl) = TestRequest::with_uri("/name/user1/")
             .app_data(PathConfig::default().error_handler(|err, _| {
-                error::InternalError::from_response(err, HttpResponse::Conflict().finish())
-                    .into()
+                error::InternalError::from_response(err, HttpResponse::Conflict().finish()).into()
             }))
             .to_http_parts();
 

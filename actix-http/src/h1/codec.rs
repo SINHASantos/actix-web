@@ -9,9 +9,7 @@ use super::{
     decoder::{self, PayloadDecoder, PayloadItem, PayloadType},
     encoder, Message, MessageType,
 };
-use crate::{
-    body::BodySize, error::ParseError, ConnectionType, Request, Response, ServiceConfig,
-};
+use crate::{body::BodySize, error::ParseError, ConnectionType, Request, Response, ServiceConfig};
 
 bitflags! {
     #[derive(Debug, Clone, Copy)]
@@ -200,9 +198,6 @@ impl Encoder<Message<(Response<()>, BodySize)>> for Codec {
 
 #[cfg(test)]
 mod tests {
-    use bytes::BytesMut;
-    use http::Method;
-
     use super::*;
     use crate::HttpMessage as _;
 

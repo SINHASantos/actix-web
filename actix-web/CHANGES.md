@@ -1,18 +1,107 @@
 # Changelog
 
-## Unreleased - 2023-xx-xx
+## Unreleased
+
+- On Windows, an error is now returned from `HttpServer::bind()` (or TLS variants) when binding to a socket that's already in use.
+- Update `brotli` dependency to `7`.
+- Minimum supported Rust version (MSRV) is now 1.75.
+
+## 4.9.0
 
 ### Added
 
-- Add `HttpServer::{bind,listen}_auto_h2c()` method.
+- Add `middleware::from_fn()` helper.
+- Add `web::ThinData` extractor.
+
+## 4.8.0
+
+### Added
+
+- Add `web::Html` responder.
+- Add `HttpRequest::full_url()` method to get the complete URL of the request.
+
+### Fixed
+
+- Always remove port from return value of `ConnectionInfo::realip_remote_addr()` when handling IPv6 addresses. from the `Forwarded` header.
+- The `UrlencodedError::ContentType` variant (relevant to the `Form` extractor) now uses the 415 (Media Type Unsupported) status code in it's `ResponseError` implementation.
+- Apply `HttpServer::max_connection_rate()` setting when using rustls v0.22 or v0.23.
+
+## 4.7.0
+
+### Added
+
+- Add `#[scope]` macro.
+- Add `middleware::Identity` type.
+- Add `CustomizeResponder::add_cookie()` method.
+- Add `guard::GuardContext::app_data()` method.
+- Add `compat-routing-macros-force-pub` crate feature which (on-by-default) which, when disabled, causes handlers to inherit their attached function's visibility.
+- Add `compat` crate feature group (on-by-default) which, when disabled, helps with transitioning to some planned v5.0 breaking changes, starting only with `compat-routing-macros-force-pub`.
+- Implement `From<Box<dyn ResponseError>>` for `Error`.
+
+## 4.6.0
+
+### Added
+
+- Add `unicode` crate feature (on-by-default) to switch between `regex` and `regex-lite` as a trade-off between full unicode support and binary size.
+- Add `rustls-0_23` crate feature.
+- Add `HttpServer::{bind_rustls_0_23, listen_rustls_0_23}()` builder methods.
+- Add `HttpServer::tls_handshake_timeout()` builder method for `rustls-0_22` and `rustls-0_23`.
+
+### Changed
+
+- Update `brotli` dependency to `6`.
+- Minimum supported Rust version (MSRV) is now 1.72.
+
+### Fixed
+
+- Avoid type confusion with `rustls` in some circumstances.
+
+## 4.5.1
+
+### Fixed
+
+- Fix missing import when using enabling Rustls v0.22 support.
+
+## 4.5.0
+
+### Added
+
+- Add `rustls-0_22` crate feature.
+- Add `HttpServer::{bind_rustls_0_22, listen_rustls_0_22}()` builder methods.
+
+## 4.4.1
+
+### Changed
+
+- Updated `zstd` dependency to `0.13`.
+- Compression middleware now prefers brotli over zstd over gzip.
+
+### Fixed
+
+- Fix validation of `Json` extractor when `JsonConfig::validate_content_type()` is set to false.
+
+## 4.4.0
+
+### Added
+
+- Add `HttpServer::{bind, listen}_auto_h2c()` methods behind new `http2` crate feature.
+- Add `HttpServer::{bind, listen}_rustls_021()` methods for Rustls v0.21 support behind new `rustls-0_21` crate feature.
 - Add `Resource::{get, post, etc...}` methods for more concisely adding routes that don't need additional guards.
+- Add `web::Payload::to_bytes[_limited]()` helper methods.
+- Add missing constructors on `HttpResponse` for several status codes.
+- Add `http::header::ContentLength` typed header.
+- Implement `Default` for `web::Data`.
+- Implement `serde::Deserialize` for `web::Data`.
+- Add `rustls-0_20` crate feature, which the existing `rustls` feature now aliases.
 
 ### Changed
 
 - Handler functions can now receive up to 16 extractor parameters.
-- Minimum supported Rust version (MSRV) is now 1.65 due to transitive `time` dependency.
+- The `Compress` middleware no longer compresses image or video content.
+- Hide sensitive header values in `HttpRequest`'s `Debug` output.
+- Minimum supported Rust version (MSRV) is now 1.68 due to transitive `time` dependency.
 
-## 4.3.1 - 2023-02-26
+## 4.3.1
 
 ### Added
 
@@ -20,7 +109,7 @@
 
 [#2969]: https://github.com/actix/actix-web/pull/2969
 
-## 4.3.0 - 2023-01-21
+## 4.3.0
 
 ### Added
 
@@ -43,7 +132,7 @@
 [#2949]: https://github.com/actix/actix-web/pull/2949
 [#2961]: https://github.com/actix/actix-web/pull/2961
 
-## 4.2.1 - 2022-09-12
+## 4.2.1
 
 ### Fixed
 
@@ -51,7 +140,7 @@
 
 [#2871]: https://github.com/actix/actix-web/pull/2871
 
-## 4.2.0 - 2022-09-11
+## 4.2.0
 
 ### Added
 
@@ -67,7 +156,7 @@
 [#2752]: https://github.com/actix/actix-web/pull/2752
 [#2786]: https://github.com/actix/actix-web/pull/2786
 
-## 4.1.0 - 2022-06-11
+## 4.1.0
 
 ### Added
 
@@ -90,13 +179,13 @@
 [#2742]: https://github.com/actix/actix-web/pull/2742
 [#2743]: https://github.com/actix/actix-web/pull/2743
 
-## 4.0.1 - 2022-02-25
+## 4.0.1
 
 ### Fixed
 
 - Use stable version in readme example.
 
-## 4.0.0 - 2022-02-25
+## 4.0.0
 
 ### Dependencies
 
@@ -374,7 +463,7 @@
 <details>
 <summary>4.0.0 Pre-Releases</summary>
 
-## 4.0.0-rc.3 - 2022-02-08
+## 4.0.0-rc.3
 
 ### Changed
 
@@ -388,7 +477,7 @@
 [#2625]: https://github.com/actix/actix-web/pull/2625
 [#2635]: https://github.com/actix/actix-web/pull/2635
 
-## 4.0.0-rc.2 - 2022-02-02
+## 4.0.0-rc.2
 
 ### Added
 
@@ -400,7 +489,7 @@
 
 [#2619]: https://github.com/actix/actix-web/pull/2619
 
-## 4.0.0-rc.1 - 2022-01-31
+## 4.0.0-rc.1
 
 ### Changed
 
@@ -414,7 +503,7 @@
 [#2601]: https://github.com/actix/actix-web/pull/2601
 [#2611]: https://github.com/actix/actix-web/pull/2611
 
-## 4.0.0-beta.21 - 2022-01-21
+## 4.0.0-beta.21
 
 ### Added
 
@@ -431,7 +520,7 @@
 [#2591]: https://github.com/actix/actix-web/pull/2591
 [#2594]: https://github.com/actix/actix-web/pull/2594
 
-## 4.0.0-beta.20 - 2022-01-14
+## 4.0.0-beta.20
 
 ### Added
 
@@ -453,7 +542,7 @@
 [#2582]: https://github.com/actix/actix-web/pull/2582
 [#2584]: https://github.com/actix/actix-web/pull/2584
 
-## 4.0.0-beta.19 - 2022-01-04
+## 4.0.0-beta.19
 
 ### Added
 
@@ -478,7 +567,7 @@
 [#2501]: https://github.com/actix/actix-web/pull/2501
 [#2565]: https://github.com/actix/actix-web/pull/2565
 
-## 4.0.0-beta.18 - 2021-12-29
+## 4.0.0-beta.18
 
 ### Changed
 
@@ -492,7 +581,7 @@
 [#2555]: https://github.com/actix/actix-web/pull/2555
 [`rustsec-2020-0071`]: https://rustsec.org/advisories/RUSTSEC-2020-0071.html
 
-## 4.0.0-beta.17 - 2021-12-29
+## 4.0.0-beta.17
 
 ### Added
 
@@ -515,7 +604,7 @@
 [#2552]: https://github.com/actix/actix-web/pull/2552
 [#2554]: https://github.com/actix/actix-web/pull/2554
 
-## 4.0.0-beta.16 - 2021-12-27
+## 4.0.0-beta.16
 
 ### Changed
 
@@ -525,7 +614,7 @@
 [#2523]: https://github.com/actix/actix-web/pull/2523
 [#2526]: https://github.com/actix/actix-web/pull/2526
 
-## 4.0.0-beta.15 - 2021-12-17
+## 4.0.0-beta.15
 
 ### Added
 
@@ -553,7 +642,7 @@
 [#2516]: https://github.com/actix/actix-web/pull/2516
 [#2518]: https://github.com/actix/actix-web/pull/2518
 
-## 4.0.0-beta.14 - 2021-12-11
+## 4.0.0-beta.14
 
 ### Added
 
@@ -598,7 +687,7 @@
 [#2493]: https://github.com/actix/actix-web/pull/2493
 [#2499]: https://github.com/actix/actix-web/pull/2499
 
-## 4.0.0-beta.13 - 2021-11-30
+## 4.0.0-beta.13
 
 ### Changed
 
@@ -606,7 +695,7 @@
 
 [#2474]: https://github.com/actix/actix-web/pull/2474
 
-## 4.0.0-beta.12 - 2021-11-22
+## 4.0.0-beta.12
 
 ### Changed
 
@@ -623,7 +712,7 @@
 [#2446]: https://github.com/actix/actix-web/pull/2446
 [#2448]: https://github.com/actix/actix-web/pull/2448
 
-## 4.0.0-beta.11 - 2021-11-15
+## 4.0.0-beta.11
 
 ### Added
 
@@ -637,7 +726,7 @@
 [#2423]: https://github.com/actix/actix-web/pull/2423
 [#2442]: https://github.com/actix/actix-web/pull/2442
 
-## 4.0.0-beta.10 - 2021-10-20
+## 4.0.0-beta.10
 
 ### Added
 
@@ -664,7 +753,7 @@
 [#2409]: https://github.com/actix/actix-web/pull/2409
 [#2414]: https://github.com/actix/actix-web/pull/2414
 
-## 4.0.0-beta.9 - 2021-09-09
+## 4.0.0-beta.9
 
 ### Added
 
@@ -687,7 +776,7 @@
 [#2344]: https://github.com/actix/actix-web/pull/2344
 [#2379]: https://github.com/actix/actix-web/pull/2379
 
-## 4.0.0-beta.8 - 2021-06-26
+## 4.0.0-beta.8
 
 ### Added
 
@@ -714,7 +803,7 @@
 [#2282]: https://github.com/actix/actix-web/pull/2282
 [#2288]: https://github.com/actix/actix-web/pull/2288
 
-## 4.0.0-beta.7 - 2021-06-17
+## 4.0.0-beta.7
 
 ### Added
 
@@ -743,7 +832,7 @@
 [#2253]: https://github.com/actix/actix-web/pull/2253
 [#2246]: https://github.com/actix/actix-web/pull/2246
 
-## 4.0.0-beta.6 - 2021-04-17
+## 4.0.0-beta.6
 
 ### Added
 
@@ -757,7 +846,7 @@
 [#2065]: https://github.com/actix/actix-web/pull/2065
 [#2148]: https://github.com/actix/actix-web/pull/2148
 
-## 4.0.0-beta.5 - 2021-04-02
+## 4.0.0-beta.5
 
 ### Added
 
@@ -783,7 +872,7 @@
 [#2097]: https://github.com/actix/actix-web/pull/2097
 [#2112]: https://github.com/actix/actix-web/pull/2112
 
-## 4.0.0-beta.4 - 2021-03-09
+## 4.0.0-beta.4
 
 ### Changed
 
@@ -793,11 +882,11 @@
 [#1981]: https://github.com/actix/actix-web/pull/1981
 [#2010]: https://github.com/actix/actix-web/pull/2010
 
-## 4.0.0-beta.3 - 2021-02-10
+## 4.0.0-beta.3
 
 - Update `actix-web-codegen` to `0.5.0-beta.1`.
 
-## 4.0.0-beta.2 - 2021-02-10
+## 4.0.0-beta.2
 
 ### Added
 
@@ -835,7 +924,7 @@
 [#1933]: https://github.com/actix/actix-web/pull/1933
 [#1957]: https://github.com/actix/actix-web/pull/1957
 
-## 4.0.0-beta.1 - 2021-01-07
+## 4.0.0-beta.1
 
 ### Added
 
@@ -869,7 +958,7 @@
 
 </details>
 
-## 3.3.3 - 2021-12-18
+## 3.3.3
 
 ### Changed
 
@@ -877,7 +966,7 @@
 
 [#2529]: https://github.com/actix/actix-web/pull/2529
 
-## 3.3.2 - 2020-12-01
+## 3.3.2
 
 ### Fixed
 
@@ -889,11 +978,11 @@
 [#1798]: https://github.com/actix/actix-web/pull/1798
 [#1803]: https://github.com/actix/actix-web/pull/1803
 
-## 3.3.1 - 2020-11-29
+## 3.3.1
 
 - Ensure `actix-http` dependency uses same `serde_urlencoded`.
 
-## 3.3.0 - 2020-11-25
+## 3.3.0
 
 ### Added
 
@@ -906,7 +995,7 @@
 [#1773]: https://github.com/actix/actix-web/pull/1773
 [#1788]: https://github.com/actix/actix-web/pull/1788
 
-## 3.2.0 - 2020-10-30
+## 3.2.0
 
 ### Added
 
@@ -931,7 +1020,7 @@
 [#1757]: https://github.com/actix/actix-web/pull/1757
 [#1749]: https://github.com/actix/actix-web/pull/1749
 
-## 3.1.0 - 2020-09-29
+## 3.1.0
 
 ### Changed
 
@@ -946,7 +1035,7 @@
 [#1708]: https://github.com/actix/actix-web/pull/1708
 [#1710]: https://github.com/actix/actix-web/pull/1710
 
-## 3.0.2 - 2020-09-15
+## 3.0.2
 
 ### Fixed
 
@@ -954,7 +1043,7 @@
 
 [#1678]: https://github.com/actix/actix-web/pull/1678
 
-## 3.0.1 - 2020-09-13
+## 3.0.1
 
 ### Changed
 
@@ -962,11 +1051,11 @@
 
 [#1673]: https://github.com/actix/actix-web/pull/1673
 
-## 3.0.0 - 2020-09-11
+## 3.0.0
 
 - No significant changes from `3.0.0-beta.4`.
 
-## 3.0.0-beta.4 - 2020-09-09
+## 3.0.0-beta.4
 
 ### Added
 
@@ -984,13 +1073,13 @@
 [#1634]: https://github.com/actix/actix-web/pull/1634
 [#1655]: https://github.com/actix/actix-web/pull/1655
 
-## 3.0.0-beta.3 - 2020-08-17
+## 3.0.0-beta.3
 
 ### Changed
 
 - Update `rustls` to 0.18
 
-## 3.0.0-beta.2 - 2020-08-17
+## 3.0.0-beta.2
 
 ### Changed
 
@@ -1010,7 +1099,7 @@
 [#1618]: https://github.com/actix/actix-web/pull/1618
 [#1621]: https://github.com/actix/actix-web/pull/1621
 
-## 3.0.0-beta.1 - 2020-07-13
+## 3.0.0-beta.1
 
 ### Added
 
@@ -1028,7 +1117,7 @@
 
 - `NormalizePath` improved consistency when path needs slashes added _and_ removed.
 
-## 3.0.0-alpha.3 - 2020-05-21
+## 3.0.0-alpha.3
 
 ### Added
 
@@ -1044,7 +1133,7 @@
 [#1485]: https://github.com/actix/actix-web/pull/1485
 [#1509]: https://github.com/actix/actix-web/pull/1509
 
-## [3.0.0-alpha.2] - 2020-05-08
+## 3.0.0-alpha.2
 
 ### Changed
 
@@ -1058,7 +1147,7 @@
 [#1452]: https://github.com/actix/actix-web/pull/1452
 [#1486]: https://github.com/actix/actix-web/pull/1486
 
-## [3.0.0-alpha.1] - 2020-03-11
+## 3.0.0-alpha.1
 
 ### Added
 
@@ -1075,7 +1164,7 @@
 
 [#1308]: https://github.com/actix/actix-web/pull/1308
 
-## [2.0.0] - 2019-12-25
+## 2.0.0
 
 ### Changed
 
@@ -1085,7 +1174,7 @@
 
 - Allow to specify multi-patterns for resources
 
-## [2.0.0-rc] - 2019-12-20
+## 2.0.0-rc
 
 ### Changed
 
@@ -1103,31 +1192,31 @@
 
 - Fix `AppConfig::secure()` is always false. #1202
 
-## [2.0.0-alpha.6] - 2019-12-15
+## 2.0.0-alpha.6
 
 ### Fixed
 
 - Fixed compilation with default features off
 
-## [2.0.0-alpha.5] - 2019-12-13
+## 2.0.0-alpha.5
 
 ### Added
 
 - Add test server, `test::start()` and `test::start_with()`
 
-## [2.0.0-alpha.4] - 2019-12-08
+## 2.0.0-alpha.4
 
 ### Deleted
 
 - Delete HttpServer::run(), it is not useful with async/await
 
-## [2.0.0-alpha.3] - 2019-12-07
+## 2.0.0-alpha.3
 
 ### Changed
 
 - Migrate to tokio 0.2
 
-## [2.0.0-alpha.1] - 2019-11-22
+## 2.0.0-alpha.1
 
 ### Changed
 
@@ -1135,7 +1224,7 @@
 
 - Remove implementation of `Responder` for `()`. (#1167)
 
-## [1.0.9] - 2019-11-14
+## 1.0.9
 
 ### Added
 
@@ -1145,7 +1234,7 @@
 
 - Support `Host` guards when the `Host` header is unset (e.g. HTTP/2 requests) (#1129)
 
-## [1.0.8] - 2019-09-25
+## 1.0.8
 
 ### Added
 
@@ -1163,13 +1252,13 @@
 
 - Use actix-testing for testing utils
 
-## [1.0.7] - 2019-08-29
+## 1.0.7
 
 ### Fixed
 
 - Request Extensions leak #1062
 
-## [1.0.6] - 2019-08-28
+## 1.0.6
 
 ### Added
 
@@ -1191,7 +1280,7 @@
 
 - Update url to 2.1
 
-## [1.0.5] - 2019-07-18
+## 1.0.5
 
 ### Added
 
@@ -1203,7 +1292,7 @@
 
 - Restored logging of errors through the `Logger` middleware
 
-## [1.0.4] - 2019-07-17
+## 1.0.4
 
 ### Added
 
@@ -1215,7 +1304,7 @@
 
 - Upgrade `rand` dependency version to 0.7
 
-## [1.0.3] - 2019-06-28
+## 1.0.3
 
 ### Added
 
@@ -1225,7 +1314,7 @@
 
 - Use `encoding_rs` crate instead of unmaintained `encoding` crate
 
-## [1.0.2] - 2019-06-17
+## 1.0.2
 
 ### Changed
 
@@ -1233,7 +1322,7 @@
 
 - Move identity middleware to `actix-identity` crate.
 
-## [1.0.1] - 2019-06-17
+## 1.0.1
 
 ### Added
 
@@ -1257,7 +1346,7 @@
 
 - HttpRequest::url_for is broken with nested scopes #915
 
-## [1.0.0] - 2019-06-05
+## 1.0.0
 
 ### Added
 
@@ -1279,7 +1368,7 @@
 
 - Clear http requests pool on app service drop #860
 
-## [1.0.0-rc] - 2019-05-18
+## 1.0.0-rc
 
 ### Added
 
@@ -1294,7 +1383,7 @@
 
 - Codegen with parameters in the path only resolves the first registered endpoint #841
 
-## [1.0.0-beta.4] - 2019-05-12
+## 1.0.0-beta.4
 
 ### Added
 
@@ -1305,7 +1394,7 @@
 - `App::configure` take an `FnOnce` instead of `Fn`
 - Upgrade actix-net crates
 
-## [1.0.0-beta.3] - 2019-05-04
+## 1.0.0-beta.3
 
 ### Added
 
@@ -1329,7 +1418,7 @@
 
 - `App::data_factory()` is deleted.
 
-## [1.0.0-beta.2] - 2019-04-24
+## 1.0.0-beta.2
 
 ### Added
 
@@ -1351,7 +1440,7 @@
 
 - Fix async web::Data factory handling
 
-## [1.0.0-beta.1] - 2019-04-20
+## 1.0.0-beta.1
 
 ### Added
 
@@ -1375,7 +1464,7 @@
 
 - Fixed `TestRequest::app_data()`
 
-## [1.0.0-alpha.6] - 2019-04-14
+## 1.0.0-alpha.6
 
 ### Changed
 
@@ -1387,7 +1476,7 @@
 
 - Make extractor config type explicit. Add `FromRequest::Config` associated type.
 
-## [1.0.0-alpha.5] - 2019-04-12
+## 1.0.0-alpha.5
 
 ### Added
 
@@ -1397,7 +1486,7 @@
 
 - Removed native-tls support
 
-## [1.0.0-alpha.4] - 2019-04-08
+## 1.0.0-alpha.4
 
 ### Added
 
@@ -1419,7 +1508,7 @@
 
 - Fix body propagation in Response::from_error. #760
 
-## [1.0.0-alpha.3] - 2019-04-02
+## 1.0.0-alpha.3
 
 ### Changed
 
@@ -1433,7 +1522,7 @@
 
 - Removed unused `actix_web::web::md()`
 
-## [1.0.0-alpha.2] - 2019-03-29
+## 1.0.0-alpha.2
 
 ### Added
 
@@ -1445,7 +1534,7 @@
 
 - Multipart::Field renamed to MultipartField
 
-## [1.0.0-alpha.1] - 2019-03-28
+## 1.0.0-alpha.1
 
 ### Changed
 

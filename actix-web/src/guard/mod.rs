@@ -61,8 +61,10 @@ use crate::{http::header::Header, service::ServiceRequest, HttpMessage as _};
 mod acceptable;
 mod host;
 
-pub use self::acceptable::Acceptable;
-pub use self::host::{Host, HostGuard};
+pub use self::{
+    acceptable::Acceptable,
+    host::{Host, HostGuard},
+};
 
 /// Provides access to request parts that are useful during routing.
 #[derive(Debug)]
@@ -107,6 +109,12 @@ impl<'a> GuardContext<'a> {
     #[inline]
     pub fn header<H: Header>(&self) -> Option<H> {
         H::parse(self.req).ok()
+    }
+
+    /// Counterpart to [HttpRequest::app_data](crate::HttpRequest::app_data).
+    #[inline]
+    pub fn app_data<T: 'static>(&self) -> Option<&T> {
+        self.req.app_data()
     }
 }
 
@@ -378,7 +386,7 @@ impl Guard for HeaderGuard {
 
 #[cfg(test)]
 mod tests {
-    use actix_http::{header, Method};
+    use actix_http::Method;
 
     use super::*;
     use crate::test::TestRequest;
@@ -509,5 +517,19 @@ mod tests {
             .method(Method::TRACE)
             .to_srv_request();
         assert!(guard.check(&req.guard_ctx()));
+    }
+
+    #[test]
+    fn app_data() {
+        const TEST_VALUE: u32 = 42;
+        let guard = fn_guard(|ctx| dbg!(ctx.app_data::<u32>()) == Some(&TEST_VALUE));
+
+        let req = TestRequest::default().app_data(TEST_VALUE).to_srv_request();
+        assert!(guard.check(&req.guard_ctx()));
+
+        let req = TestRequest::default()
+            .app_data(TEST_VALUE * 2)
+            .to_srv_request();
+        assert!(!guard.check(&req.guard_ctx()));
     }
 }
